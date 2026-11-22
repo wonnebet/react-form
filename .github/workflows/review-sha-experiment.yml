@@ -1,0 +1,17 @@
+name: review-sha-experiment
+on:
+  pull_request:
+    types: [opened]
+permissions:
+  contents: read
+  pull-requests: write
+jobs:
+  approve-once:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Approve the initial test commit
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: gh api --method POST "repos/$GITHUB_REPOSITORY/pulls/$PR_NUMBER/reviews" -f event=APPROVE -f commit_id="$HEAD_SHA" -f body='One-time approval for review SHA experiment.' --jq '{id,state,commit_id,submitted_at}'
